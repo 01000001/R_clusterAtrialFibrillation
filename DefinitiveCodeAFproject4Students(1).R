@@ -1,4 +1,55 @@
 # Using the Cluster Package of R for Various Cluster Techniques
+library(cluster)
+library(stats)
+library(rms)
+library(MASS)
+library(FSelector)
+
+
+dmed <- read.csv("~/Documents/R_clusterAtrialFibrillation/Dmed.csv", header=T, sep=",")
+dmedAF <- subset(dmed, AF==1) #take only the AF patients
+dmed.s <- head(dmedAF,100) #create smaller dataset
+dmed.s.diana <- diana(dmed.s) #create variable for diana clustering of small dataset
+
+dmed.s100 <- head(dmedAF,100) #take 100 samle
+dmed.s100ok <- head(dmed,100) #take 100 samle without the AF
+dmed.s100.dist <- dist(dmed.s100[,6:20]) #calculate the distance
+dmed.s100.hclust <- hclust(dmed.s100.dist) #do clustering
+plot(dmed.s100.hclust, labels=dmed.s100$pid) #plot data with labels
+
+dmed.s1000 <- head(dmedAF,1000) #take 100 samle
+dmed.s1000.dist <- dist(dmed.s1000[,6:20]) #calculate the distance
+dmed.s1000.hclust <- hclust(dmed.s1000.dist) #do clustering
+plot(dmed.s1000.hclust, labels=dmed.s1000$pid) #plot data with labels
+
+dmed.s1000.diana = diana(dmed.s1000.dist)
+pltree(dmed.s1000.diana)
+dmed.s1000.hclust <- as.hclust(dmed.s1000.diana)
+plot(dmed.s1000.hclust)
+
+counts = sapply(1:10,function(ncl)table(cutree(dmed.s100.hclust,ncl))) #cut the tree on different levels
+names(counts) = 1:10
+counts
+
+dmed.3 <- cutree(dmed.s100.hclust, 3) #variable dmed.3 for only 3 cluster
+sapply(unique(dmed.3),function(g)dmed.s100$AF[dmed.3 == g]) #show how many AV patients are in different groups
+
+table(dmed.3,dmed.s100$AF) #how on a table how many AF patients are in different clusters
+
+#for (i in 1:20) { dmed.s100[i] <- cutree(dmed.s100.hclust, i) } #create automaticly groups with clusters
+
+### for all
+dmed <- read.csv("~/Documents/R_clusterAtrialFibrillation/Dmed.csv", header=T, sep=",")
+dmedAF <- subset(dmed, AF==1) #take only the AF patients
+dmed.diana <- diana(dmedAF[,6:20]) #create variable for diana clustering of small dataset
+dmed.diana.dist <- dist(dmedAF[,6:20])
+
+##chads
+cheds <- read.csv("~/Documents/R_clusterAtrialFibrillation/chads.csv", header=T, sep=",")
+
+
+dlab <- read.csv("~/Documents/R_clusterAtrialFibrillation/Dlab.csv", header=T, sep=",")
+dicp <- read.csv("~/Documents/R_clusterAtrialFibrillation/Dicp.csv", header=T, sep=",")
 
 #Introduction
 #In this practical and project you will learn to apply and analyze data using different clustering techniques available in R. Cluster algorithms are used to analyze data not containing a pre-specified class attribute. This is why clustering is referred to as unsupervised learning, in contrast to classification in which a relationship is sought between a class attribute and the other attributes. So although most of the datasets we use have a class attribute these will be ignored except for evaluation purposes. We will use two main types of cluster methods in this lab: hierarchical methods (mainly Diana) and a partitioning method (Pam). 
@@ -379,6 +430,8 @@ Med.diana <- diana(dmed)
 pltree(Med.diana)
 Med.hclust <- as.hclust(Med.diana)
 rect.hclust(Med.hclust, 2)
+
+
 
 summary(Med.diana)
 
